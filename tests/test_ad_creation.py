@@ -1,28 +1,30 @@
 from selenium.webdriver.support.wait import WebDriverWait 
 from selenium.webdriver.support import expected_conditions as EC 
-from ..data import *
-from ..helpers import *
-from ..locators import *
+from data import *
+from helpers import *
+from locators import *
 
 # Создание объявления авторизованным пользователем
 class TestAdCreationByAuthorizedUser:
 
     def test_ad_creation_by_authorized_user(self, driver):
         
-        email = generate_email_correct()
-        pswd = generate_password()
+        # Убрана регистрация нового пользователя
+        # Используем существующие данные для авторизации
         ad_title = generate_title()
         ad_description = generate_description()
-        ad_price= generate_price()
+        ad_price = generate_price()
 
+        # Авторизуемся существующим пользователем
         WebDriverWait(driver, TIMEOUT).until(EC.visibility_of_element_located((MainPageLocators.LOGIN_BUTTON_XPATH))).click()
-        WebDriverWait(driver, TIMEOUT).until(EC.visibility_of_element_located((AuthPageLocators.REGIST_BUTTON_XPATH))).click()
-        WebDriverWait(driver, TIMEOUT).until(EC.visibility_of_element_located((RegistPageLocators.EMAIL_INPUT_XPATH))).send_keys(email)
-        driver.find_element(*RegistPageLocators.PASSWORD_INPUT_XPATH).send_keys(pswd)
-        driver.find_element(*RegistPageLocators.SUDMIT_PASSWORD_INPUT_XPATH).send_keys(pswd)
-        driver.find_element(*RegistPageLocators.REGIST_BUTTON_XPATH).click()
+        WebDriverWait(driver, TIMEOUT).until(EC.visibility_of_element_located((AuthPageLocators.EMAIL_INPUT_XPATH))).send_keys(EMAIL)
+        driver.find_element(*AuthPageLocators.PASSWORD_INPUT_XPATH).send_keys(PSWD)
+        driver.find_element(*AuthPageLocators.LOGIN_BUTTON_XPATH).click()
 
-        WebDriverWait(driver, TIMEOUT).until_not(EC.visibility_of_element_located((AdCreationPageLocators.MODAL_NOTIFICATION_XPATH)))
+        # Ждем завершения авторизации
+        WebDriverWait(driver, TIMEOUT).until(EC.visibility_of_element_located((MainPageLocators.AVATAR_USER_CLASS_NAME)))
+
+        # Создаем объявление
         WebDriverWait(driver, TIMEOUT).until(EC.element_to_be_clickable((MainPageLocators.POST_ADD_BUTTON_XPATH))).click()
         WebDriverWait(driver, TIMEOUT).until(EC.visibility_of_element_located((AdCreationPageLocators.AD_TITLE_INPUT_XPATH))).send_keys(ad_title)
         driver.find_element(*AdCreationPageLocators.AD_DESCRIPTION_INPUT_XPATH).send_keys(ad_description)
@@ -41,12 +43,11 @@ class TestAdCreationByAuthorizedUser:
         ]), "Условия успешного отображения объявления в блоке 'Мои объявления' не выполнены"
 
 # Создание объявления неавторизованным пользователем
-
     def test_ad_creation_by_unauthorized_user(self, driver):
 
         WebDriverWait(driver, TIMEOUT).until(EC.visibility_of_element_located((MainPageLocators.POST_ADD_BUTTON_XPATH))).click()
 
         assert all([
-            WebDriverWait(driver, TIMEOUT).until(EC.visibility_of_element_located(AdCreationPageLocators.MODAL_NOTIFICATION_XPATH)),
-            WebDriverWait(driver, TIMEOUT).until(EC.visibility_of_element_located(AdCreationPageLocators.TITLE_NOTIFICATION_XPATH)).text == 'Чтобы разместить объявление, авторизуйтесь'
+            WebDriverWait(driver, TIMEOUT).until(EC.visibility_of_element_located((AdCreationPageLocators.MODAL_NOTIFICATION_XPATH))),
+            WebDriverWait(driver, TIMEOUT).until(EC.visibility_of_element_located((AdCreationPageLocators.TITLE_NOTIFICATION_XPATH))).text == 'Чтобы разместить объявление, авторизуйтесь'
         ]), "Условия успешного отображения модального окна не выполнены"

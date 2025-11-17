@@ -1,7 +1,6 @@
 import pytest
 from selenium import webdriver
-
-BASE_URL = 'https://qa-desk.stand.praktikum-services.ru'
+from data import BASE_URL  # Импортируем из data.py
 
 @pytest.fixture
 def driver():

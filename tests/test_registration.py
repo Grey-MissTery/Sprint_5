@@ -1,8 +1,8 @@
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from data import *
-from locators import *
-from helpers import *
+from ..data import *
+from ..locators import *
+from ..helpers import *
 
 # Все тесты регистрации в одном классе
 class TestRegistration:
